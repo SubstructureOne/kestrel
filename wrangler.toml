@@ -1,0 +1,7 @@
+name = "kestrel"
+account_id = "a3fe3156858a2ba322ce8c05a2358c0c"
+workers_dev = true
+compatibility_date = "2022-07-04"
+
+[build]
+command = "npm install && npm run build"
