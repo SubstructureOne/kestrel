@@ -18,3 +18,10 @@ export async function verifyJwt(
         return new Response(`Error verifying JWT`, { status: 400 })
     }
 }
+
+export async function registerDeposit(
+    userid: string,
+    amount: number
+): Promise<Response> {
+    return new Response(`Deposited ${amount} to ${userid}`)
+}
