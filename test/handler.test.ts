@@ -39,6 +39,6 @@ describe('handle', () => {
       jwtsecret
     )
     const result = await verifyJwt(jwt, jwtsecret)
-    expect(result.status).toEqual(200)
+    expect(result).toEqual(true)
   })
 })
