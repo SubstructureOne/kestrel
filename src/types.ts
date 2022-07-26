@@ -20,3 +20,18 @@ export type VerifySigantureJson = {
     signature_b64: string,
     key_b64: string,
 }
+
+export type AddKeyJson = {
+    jwt: string,
+    key_b64: string,
+    keytype: string
+}
+
+export type ListKeysJson = {
+    jwt: string
+}
+
+export type DeleteKeyJson = {
+    jwt: string,
+    key_b64: string,
+}

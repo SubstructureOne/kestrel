@@ -1,6 +1,7 @@
 import { KJUR } from 'jsrsasign'
 import { createClient } from '@supabase/supabase-js'
 import { Env } from './types'
+import { b64encode } from './encoding'
 
 interface SupabasePayload {
     aud: string,
@@ -57,12 +58,44 @@ export async function verifyKey(
     env: Env
 ): Promise<boolean> {
     const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
-    const session = supabase.auth.setAuth(jwt)
+    supabase.auth.setAuth(jwt)
+    console.log(`Looking for ${b64encode(key)}`)
     const { count } = await supabase
         .from("keys")
-        .select("publickey")
-        .eq('publickey', key)
+        .select("publickey", {count: "exact"})
+        .eq('publickey', b64encode(key))
     return count != null && count > 0
+}
+
+export async function listKeys(
+    jwt: string,
+    env: Env
+): Promise<string[]> {
+    let keys = []
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
+    supabase.auth.setAuth(jwt)
+    const { data, count } = await supabase
+        .from("keys")
+        .select("publickey", {count: "exact"})
+    console.log(`Count is ${count}`)
+    return <string[]>data
+}
+
+export async function deleteKey(
+    jwt: string,
+    key: Uint8Array,
+    env: Env
+) {
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
+    supabase.auth.setAuth(jwt)
+    const { error, count } = await supabase
+        .from("keys")
+        .delete({count: "exact"})
+        .match({publickey: b64encode(key)})
+    console.log(`${count} keys deleted`)
+    if (error) {
+        throw new Error(error.message)
+    }
 }
 
 export async function verifySignature(
@@ -117,17 +150,22 @@ export async function addKey(
     env: Env
 ) {
     const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
-    const session = supabase.auth.setAuth(jwt)
-    if (session.user == null) {
+    console.log(`Setting auth: ${jwt}`)
+    supabase.auth.setAuth(jwt)
+    const { user } = await supabase.auth.api.getUser(jwt)
+    if (user == null) {
         throw Error("User is null")
     }
     const { data, error } = await supabase
         .from("keys")
         .insert([{
-            userid: session.user.id,
-            publickey: publicKey,
+            userid: user.id,
+            publickey: b64encode(publicKey),
             keytype: keytype
         }])
+    if (error) {
+        throw Error(error.message)
+    }
 }
 
 // export async function removeKey(

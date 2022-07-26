@@ -1,5 +1,14 @@
-import { verifyJwt, registerDeposit, verifySignature } from './handler'
-import { Env, VerifyRequestJson, DepositRequestJson, VerifySigantureJson } from './types'
+import { verifyJwt, registerDeposit, verifySignature, addKey, listKeys, deleteKey } from './handler'
+import {
+    Env,
+    VerifyRequestJson,
+    DepositRequestJson,
+    VerifySigantureJson,
+    AddKeyJson,
+    ListKeysJson, DeleteKeyJson
+} from './types'
+
+import { b64decode } from './encoding'
 
 export default {
     async fetch(
@@ -23,9 +32,9 @@ export default {
         } else if (url.pathname == '/signature') {
             const json: VerifySigantureJson = await request.json()
             const toChar = (x: string): number => x.charCodeAt(0)
-            const message = Uint8Array.from(atob(json.message_b64), toChar)
-            const signature = Uint8Array.from(atob(json.signature_b64), toChar)
-            const key = Uint8Array.from(atob(json.key_b64), toChar)
+            const message = b64decode(json.message_b64)
+            const signature = b64decode(json.signature_b64)
+            const key = b64decode(json.key_b64)
             const result = await verifySignature(
                 json.jwt,
                 message,
@@ -34,9 +43,46 @@ export default {
                 env
             )
             if (result) {
-                return new Response("Verified", {status: 200})
+                return new Response("Verified", { status: 200 })
             } else {
-                return new Response("Failed", {status: 400})
+                return new Response(
+                    JSON.stringify({error: "Failed"}),
+                    { status: 400 }
+                )
+            }
+        } else if (url.pathname == '/addkey') {
+            const json: AddKeyJson = await request.json()
+            await addKey(
+                json['jwt'],
+                b64decode(json['key_b64']),
+                json['keytype'],
+                env
+            )
+            return new Response("Key added", { status: 200 })
+        } else if (url.pathname == '/listkeys') {
+            const json: ListKeysJson = await request.json()
+            const keys = await listKeys(json['jwt'], env)
+            return new Response(
+                JSON.stringify({ 'keys': keys }),
+                { status: 200 }
+            )
+        } else if (url.pathname == '/deletekey') {
+            const json: DeleteKeyJson = await request.json()
+            try {
+                await deleteKey(
+                    json['jwt'],
+                    b64decode(json['key_b64']),
+                    env
+                )
+                return new Response(
+                    JSON.stringify({message: "Success"}),
+                    {status: 200}
+                )
+            } catch (e) {
+                return new Response(
+                    JSON.stringify({error: e}),
+                    {status: 500}
+                )
             }
         } else {
             return new Response(`Unknown path: ${url.pathname}`, {status: 404})
