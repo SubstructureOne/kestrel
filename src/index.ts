@@ -28,7 +28,7 @@ export default {
             }
         } else if (url.pathname == '/deposit') {
             const json: DepositRequestJson = await request.json()
-            return registerDeposit(json['jwt'], json['userid'], parseFloat(json['txnid']))
+            return registerDeposit(json['jwt'], json['userid'], json['amount'], env)
         } else if (url.pathname == '/signature') {
             const json: VerifySigantureJson = await request.json()
             const toChar = (x: string): number => x.charCodeAt(0)

@@ -12,6 +12,9 @@ interface SupabasePayload {
     app_metadata: object
 }
 
+class AuthenticationError extends Error {
+}
+
 export async function verifyJwt(
     jwt: string,
     jwtsecret: string,
@@ -47,9 +50,42 @@ export async function extractUserId(
 export async function registerDeposit(
     jwt: string,
     userid: string,
-    amount: number
+    amount: number,
+    env: Env
 ): Promise<Response> {
-    return new Response(`Deposited ${amount} to ${userid}`)
+    // todo: verify deposit
+    const verified = await verifyJwt(jwt, env.SUPABASE_JWT_SECRET)
+    if (!verified) {
+        return new Response(
+            JSON.stringify({"error": "Authentication failed"}),
+            {status: 403}
+        )
+    }
+    const jwtuser = await extractUserId(jwt)
+    if (userid != jwtuser) {
+        return new Response(
+            JSON.stringify({"error": "Only allowed to deposit to your own account"})
+        )
+    }
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY)
+    const {error} = await supabase.rpc(
+        "add_external_deposit",
+        {
+            "to_user": userid,
+            "amount": amount,
+        },
+    )
+    if (error) {
+        console.log(JSON.stringify(error))
+        return new Response(
+            JSON.stringify({"error": "Error registering deposit"}),
+            {status: 500}
+        )
+    }
+    return new Response(
+        JSON.stringify({"message": `Deposited ${amount} to ${userid}`}),
+        {status: 200}
+    )
 }
 
 export async function verifyKey(
@@ -167,10 +203,3 @@ export async function addKey(
         throw Error(error.message)
     }
 }
-
-// export async function removeKey(
-//     jwt: string,
-//     publicKey: Uint8Array,
-//     keytype: string,
-//     env: Env
-// )

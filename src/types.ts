@@ -2,6 +2,7 @@ export type Env = {
     SUPABASE_JWT_SECRET: string,
     SUPABASE_URL: string,
     SUPABASE_ANON_KEY: string,
+    SUPABASE_SERVICE_KEY: string,
 }
 
 export type VerifyRequestJson = {
@@ -11,7 +12,8 @@ export type VerifyRequestJson = {
 export type DepositRequestJson = {
     jwt: string,
     userid: string,
-    txnid: string,
+    txnid?: string,
+    amount: number
 }
 
 export type VerifySigantureJson = {

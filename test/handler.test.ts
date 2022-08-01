@@ -1,7 +1,7 @@
 import { describe, beforeEach, jest, test } from '@jest/globals'
 import { KJUR } from 'jsrsasign';
 
-import { verifyJwt } from '../src/handler'
+import { registerDeposit, verifyJwt } from '../src/handler'
 
 import makeServiceWorkerEnv from 'service-worker-mock'
 
@@ -41,4 +41,13 @@ describe('handle', () => {
     const result = await verifyJwt(jwt, jwtsecret)
     expect(result).toEqual(true)
   })
+
+    // test("registerDeposit", async () => {
+    //     const result = await registerDeposit(
+    //         jwt,
+    //         userid,
+    //         amount,
+    //         {}
+    //     )
+    // })
 })
