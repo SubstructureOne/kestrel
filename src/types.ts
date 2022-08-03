@@ -37,3 +37,10 @@ export type DeleteKeyJson = {
     jwt: string,
     key_b64: string,
 }
+
+export type CreateTransactionJson = {
+    jwt: string,
+    fromuser: string,
+    touser: string,
+    amount: number
+}

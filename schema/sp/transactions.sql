@@ -31,7 +31,11 @@ AS $$
 $$;
 
 
-CREATE OR REPLACE FUNCTION add_internal_transaction(from_user uuid, to_user uuid, amount numeric)
+CREATE OR REPLACE FUNCTION add_internal_transaction(
+        from_user uuid,
+        to_user uuid,
+        amount numeric
+)
     RETURNS numeric
     LANGUAGE plpgsql
 AS $$

@@ -1,7 +1,18 @@
 import { KJUR } from 'jsrsasign'
 import { createClient } from '@supabase/supabase-js'
-import { Env } from './types'
-import { b64encode } from './encoding'
+import {
+    AddKeyJson, CreateTransactionJson,
+    DeleteKeyJson,
+    DepositRequestJson,
+    Env,
+    ListKeysJson,
+    VerifyRequestJson,
+    VerifySigantureJson
+} from './types'
+
+import { createTransaction, registerDeposit } from "./transactions"
+import { b64decode, b64encode } from './encoding'
+
 
 interface SupabasePayload {
     aud: string,
@@ -15,11 +26,98 @@ interface SupabasePayload {
 class AuthenticationError extends Error {
 }
 
+
+export async function handleRequest(
+    request: Request,
+    env: Env,
+    _context: ExecutionContext
+): Promise<Response> {
+    const url = new URL(request.url)
+    if (url.pathname == '/jwt') {
+        const json: VerifyRequestJson = await request.json()
+        const jwtverified = await verifyJwt(json['jwt'], env.SUPABASE_JWT_SECRET)
+        if (jwtverified) {
+            return new Response("Successful JWT verification", {status: 200})
+        } else {
+            return new Response("JWT verification failed", {status: 400})
+        }
+    } else if (url.pathname == '/deposit') {
+        const json: DepositRequestJson = await request.json()
+        return registerDeposit(json['jwt'], json['userid'], json['amount'], env)
+    } else if (url.pathname == '/signature') {
+        const json: VerifySigantureJson = await request.json()
+        const message = b64decode(json.message_b64)
+        const signature = b64decode(json.signature_b64)
+        const key = b64decode(json.key_b64)
+        const result = await verifySignature(
+            json.jwt,
+            message,
+            signature,
+            key,
+            env
+        )
+        if (result) {
+            return new Response("Verified", { status: 200 })
+        } else {
+            return new Response(
+                JSON.stringify({error: "Failed"}),
+                { status: 400 }
+            )
+        }
+    } else if (url.pathname == '/addkey') {
+        const json: AddKeyJson = await request.json()
+        await addKey(
+            json['jwt'],
+            b64decode(json['key_b64']),
+            json['keytype'],
+            env
+        )
+        return new Response("Key added", { status: 200 })
+    } else if (url.pathname == '/listkeys') {
+        const json: ListKeysJson = await request.json()
+        const keys = await listKeys(json['jwt'], env)
+        return new Response(
+            JSON.stringify({ 'keys': keys }),
+            { status: 200 }
+        )
+    } else if (url.pathname == '/deletekey') {
+        const json: DeleteKeyJson = await request.json()
+        try {
+            await deleteKey(
+                json['jwt'],
+                b64decode(json['key_b64']),
+                env
+            )
+            return new Response(
+                JSON.stringify({ message: "Success" }),
+                { status: 200 }
+            )
+        } catch (e) {
+            return new Response(
+                JSON.stringify({ error: e }),
+                { status: 500 }
+            )
+        }
+    } else if (url.pathname == '/createtransaction') {
+        const json: CreateTransactionJson = await request.json()
+        const response = await createTransaction(
+            json['jwt'],
+            json['fromuser'],
+            json['touser'],
+            json['amount'],
+            env
+        )
+        return response
+    } else {
+        return new Response(`Unknown path: ${url.pathname}`, {status: 404})
+    }
+}
+
 export async function verifyJwt(
     jwt: string,
     jwtsecret: string,
 ): Promise<boolean> {
-    let result = false;
+    let result;
     try {
         result = KJUR.jws.JWS.verifyJWT(
             jwt,
@@ -45,47 +143,6 @@ export async function extractUserId(
     }
     const payload = <SupabasePayload>result.payloadObj
     return payload.sub
-}
-
-export async function registerDeposit(
-    jwt: string,
-    userid: string,
-    amount: number,
-    env: Env
-): Promise<Response> {
-    // todo: verify deposit
-    const verified = await verifyJwt(jwt, env.SUPABASE_JWT_SECRET)
-    if (!verified) {
-        return new Response(
-            JSON.stringify({"error": "Authentication failed"}),
-            {status: 403}
-        )
-    }
-    const jwtuser = await extractUserId(jwt)
-    if (userid != jwtuser) {
-        return new Response(
-            JSON.stringify({"error": "Only allowed to deposit to your own account"})
-        )
-    }
-    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY)
-    const {error} = await supabase.rpc(
-        "add_external_deposit",
-        {
-            "to_user": userid,
-            "amount": amount,
-        },
-    )
-    if (error) {
-        console.log(JSON.stringify(error))
-        return new Response(
-            JSON.stringify({"error": "Error registering deposit"}),
-            {status: 500}
-        )
-    }
-    return new Response(
-        JSON.stringify({"message": `Deposited ${amount} to ${userid}`}),
-        {status: 200}
-    )
 }
 
 export async function verifyKey(
