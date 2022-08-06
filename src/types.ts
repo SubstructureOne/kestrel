@@ -1,3 +1,7 @@
+import {PostgrestFilterBuilder} from '@supabase/postgrest-js'
+
+export type FilterOperator = Parameters<PostgrestFilterBuilder<any>['filter']>[1]
+
 export type Env = {
     SUPABASE_JWT_SECRET: string,
     SUPABASE_URL: string,
@@ -43,4 +47,36 @@ export type CreateTransactionJson = {
     fromuser: string,
     touser: string,
     amount: number
+}
+
+export type CreateRowFunctionDataJson = {
+    userid: string,
+    appid: string,
+    data: object
+}
+
+export type QueryRowsFunctionDataJson = {
+    jwt: string,
+    userid: string,
+    appid: string,
+    column: string,
+    operator: FilterOperator,
+    value: string,
+}
+
+export type QueryRowsFunctionSingleResult = {
+    rowid: string,
+    data: object
+}
+
+export type QueryRowsFunctionResult = {
+    queryinfo: QueryRowsFunctionDataJson,
+    // results: QueryRowsFunctionSingleResult[],
+    results: any
+}
+
+export type DeleteRowFunctionDataJson = {
+    userid: string,
+    appid: string,
+    rowid: string,
 }

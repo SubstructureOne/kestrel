@@ -5,13 +5,14 @@ import {
     DeleteKeyJson,
     DepositRequestJson,
     Env,
-    ListKeysJson,
+    ListKeysJson, QueryRowsFunctionDataJson,
     VerifyRequestJson,
     VerifySigantureJson
 } from './types'
 
 import { createTransaction, registerDeposit } from "./transactions"
 import { b64decode, b64encode } from './encoding'
+import { queryUserData } from './functions'
 
 
 interface SupabasePayload {
@@ -108,6 +109,9 @@ export async function handleRequest(
             env
         )
         return response
+    } else if (url.pathname == '/queryuserdata') {
+        const json: QueryRowsFunctionDataJson = await request.json()
+        return await queryUserData(json, env)
     } else {
         return new Response(`Unknown path: ${url.pathname}`, {status: 404})
     }
