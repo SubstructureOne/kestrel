@@ -1,6 +1,6 @@
 import { Env } from './types'
 import { createClient } from '@supabase/supabase-js'
-import { extractUserId, verifyJwt } from './handler'
+import { extractUserId, verifyJwt } from './auth'
 
 export async function registerDeposit(
     jwt: string,

@@ -1,5 +1,4 @@
 import {PostgrestFilterBuilder} from '@supabase/postgrest-js'
-
 export type FilterOperator = Parameters<PostgrestFilterBuilder<any>['filter']>[1]
 
 export type Env = {
@@ -7,6 +6,7 @@ export type Env = {
     SUPABASE_URL: string,
     SUPABASE_ANON_KEY: string,
     SUPABASE_SERVICE_KEY: string,
+    KESTREL_BUCKET: R2Bucket,
 }
 
 export type VerifyRequestJson = {
@@ -65,18 +65,25 @@ export type QueryRowsFunctionDataJson = {
 }
 
 export type QueryRowsFunctionSingleResult = {
-    rowid: string,
+    id: string,
     data: object
 }
 
 export type QueryRowsFunctionResult = {
     queryinfo: QueryRowsFunctionDataJson,
-    // results: QueryRowsFunctionSingleResult[],
-    results: any
+    results: QueryRowsFunctionSingleResult[],
 }
 
 export type DeleteRowFunctionDataJson = {
     userid: string,
     appid: string,
     rowid: string,
+}
+
+export type UploadFileJsonData = {
+    jwt: string,
+    userid: string,
+    appid: string,
+    path: string
+    filedata_b64: string
 }

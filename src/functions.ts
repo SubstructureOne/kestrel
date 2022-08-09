@@ -36,7 +36,7 @@ export async function queryUserData(
     supabase.auth.setAuth(queryRowData.jwt)
     const {data, error} = await supabase
         .from('userdata')
-        .select('id, data')
+        .select('udataid, data')
         .filter(queryRowData.column, queryRowData.operator, queryRowData.value)
     if (error) {
         return new Response(
@@ -46,7 +46,7 @@ export async function queryUserData(
     }
     const result: QueryRowsFunctionResult = {
         queryinfo: queryRowData,
-        results: data
+        results: data ?? []
     }
     return new Response(
         JSON.stringify(result),

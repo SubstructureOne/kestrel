@@ -5,3 +5,7 @@ compatibility_date = "2022-07-04"
 
 [build]
 command = "npm install && npm run build"
+
+[[r2_buckets]]
+binding = 'KESTREL_BUCKET' # <~ valid JavaScript variable name
+bucket_name = 'kestrel'

@@ -1,9 +1,10 @@
 import { describe, beforeEach, jest, test } from '@jest/globals'
 import { KJUR } from 'jsrsasign';
 
-import { registerDeposit, verifyJwt } from '../src/handler'
+import { registerDeposit} from '../src/handler'
 
 import makeServiceWorkerEnv from 'service-worker-mock'
+import { verifyJwt } from '../src/auth'
 
 declare let global: Record<string, unknown>
 
