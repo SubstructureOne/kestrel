@@ -6,15 +6,16 @@ import {
     DepositRequestJson,
     Env,
     ListKeysJson,
-    QueryRowsFunctionDataJson,
+    QueryRowsFunctionDataJson, UploadFileJsonData,
     VerifyRequestJson,
-    VerifySigantureJson,
+    VerifySigantureJson
 } from './types'
 
 import { createTransaction, registerDeposit } from './transactions'
 import { b64decode, b64encode } from './encoding'
 import { queryUserData } from './functions'
 import { verifyJwt, verifySignature } from './auth'
+import { uploadFile } from './files'
 
 class AuthenticationError extends Error {}
 
@@ -103,6 +104,9 @@ export async function handleRequest(
     } else if (url.pathname == '/queryuserdata') {
         const json: QueryRowsFunctionDataJson = await request.json()
         return await queryUserData(json, env)
+    } else if (url.pathname == '/uploadfile') {
+        const json: UploadFileJsonData = await request.json()
+        return await uploadFile(json, env)
     } else {
         return new Response(`Unknown path: ${url.pathname}`, {status: 404})
     }
