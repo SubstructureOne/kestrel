@@ -50,6 +50,7 @@ export type CreateTransactionJson = {
 }
 
 export type CreateRowFunctionDataJson = {
+    jwt: string,
     userid: string,
     appid: string,
     data: object
@@ -86,4 +87,11 @@ export type UploadFileJsonData = {
     appid: string,
     path: string
     filedata_b64: string
+}
+
+export type RetrieveFileJsonData = {
+    jwt: string,
+    userid: string,
+    appid: string,
+    path: string,
 }

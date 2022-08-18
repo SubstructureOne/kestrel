@@ -1,4 +1,4 @@
-import { Env, UploadFileJsonData } from './types'
+import { Env, RetrieveFileJsonData, UploadFileJsonData } from './types'
 import { verifyJwt, extractUserId } from './auth'
 import { b64decode } from './encoding'
 
@@ -35,4 +35,27 @@ export async function uploadFile(
         JSON.stringify({message: "File uploaded"}),
         {status: 200}
     )
+}
+
+export async function retrieveFile(
+    retrieveFileData: RetrieveFileJsonData,
+    env: Env,
+): Promise<Response> {
+    if (!await verifyJwt(retrieveFileData.jwt, env.SUPABASE_JWT_SECRET)) {
+        return new Response(
+            JSON.stringify({error: "JWT failed to verify"}),
+            {status: 403},
+        )
+    }
+    const object = await env.KESTREL_BUCKET.get(retrieveFileData.path)
+    if (object === null) {
+        return new Response(
+            JSON.stringify({error: "Path not found"}),
+            {status: 404}
+        )
+    }
+    const headers = new Headers()
+    object.writeHttpMetadata(headers)
+    headers.set('etag', object.httpEtag)
+    return new Response(object.body, {status: 200})
 }

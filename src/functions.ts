@@ -2,12 +2,11 @@ import { CreateRowFunctionDataJson, Env, QueryRowsFunctionDataJson, QueryRowsFun
 import { createClient } from '@supabase/supabase-js'
 
 export async function createUserDataRow(
-    jwt: string,
     createRowData: CreateRowFunctionDataJson,
     env: Env
 ): Promise<Response> {
-    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
-    supabase.auth.setAuth(jwt)
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY)
+    // supabase.auth.setAuth(createRowData.jwt)
     const {error} = await supabase
         .from('userdata')
         .insert({

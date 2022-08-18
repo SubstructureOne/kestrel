@@ -21,7 +21,16 @@ module.exports = {
           // transpileOnly: true,
         },
       },
+      {
+        test: /\.wasm$/,
+        type: 'javascript/auto',
+        loader: 'file-loader',
+        // use: 'imports-loader?window=>undefined,importScripts=>undefined,process=>undefined',
+      },
     ],
   },
-  // target: 'node',
+  experiments: {
+    asyncWebAssembly: true
+  },
+  target: 'webworker',
 }

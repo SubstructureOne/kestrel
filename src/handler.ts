@@ -1,21 +1,21 @@
 import { createClient } from '@supabase/supabase-js'
 import {
-    AddKeyJson,
+    AddKeyJson, CreateRowFunctionDataJson,
     CreateTransactionJson,
     DeleteKeyJson,
     DepositRequestJson,
     Env,
     ListKeysJson,
-    QueryRowsFunctionDataJson, UploadFileJsonData,
+    QueryRowsFunctionDataJson, RetrieveFileJsonData, UploadFileJsonData,
     VerifyRequestJson,
     VerifySigantureJson
 } from './types'
 
 import { createTransaction, registerDeposit } from './transactions'
 import { b64decode, b64encode } from './encoding'
-import { queryUserData } from './functions'
+import { createUserDataRow, queryUserData } from './functions'
 import { verifyJwt, verifySignature } from './auth'
-import { uploadFile } from './files'
+import { retrieveFile, uploadFile } from './files'
 
 class AuthenticationError extends Error {}
 
@@ -101,12 +101,18 @@ export async function handleRequest(
             env
         )
         return response
+    } else if (url.pathname == '/adduserdata') {
+        const json: CreateRowFunctionDataJson = await request.json()
+        return await createUserDataRow(json, env)
     } else if (url.pathname == '/queryuserdata') {
         const json: QueryRowsFunctionDataJson = await request.json()
         return await queryUserData(json, env)
     } else if (url.pathname == '/uploadfile') {
         const json: UploadFileJsonData = await request.json()
         return await uploadFile(json, env)
+    } else if (url.pathname == '/getfile') {
+        const json: RetrieveFileJsonData = await request.json()
+        return await retrieveFile(json, env)
     } else {
         return new Response(`Unknown path: ${url.pathname}`, {status: 404})
     }
