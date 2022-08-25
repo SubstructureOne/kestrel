@@ -33,10 +33,13 @@ export async function queryUserData(
 ): Promise<Response> {
     const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
     supabase.auth.setAuth(queryRowData.jwt)
-    const {data, error} = await supabase
+    let promise = supabase
         .from('userdata')
         .select('udataid, data')
-        .filter(queryRowData.column, queryRowData.operator, queryRowData.value)
+    for (let filter of queryRowData.filters) {
+        promise = promise.filter(filter.column, filter.operator, filter.value)
+    }
+    const {data, error} = await promise
     if (error) {
         return new Response(
             JSON.stringify({error: error.message}),

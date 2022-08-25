@@ -8,5 +8,6 @@ command = "npm install && npm run build"
 
 [[r2_buckets]]
 binding = 'KESTREL_BUCKET'
-bucket_name = 'kestrel'
+#bucket_name = 'kestrel'
+bucket_name = 'kestreldev'
 preview_bucket_name = 'kestreldev'

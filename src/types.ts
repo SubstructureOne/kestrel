@@ -56,13 +56,17 @@ export type CreateRowFunctionDataJson = {
     data: object
 }
 
+export type QueryFilter = {
+    column: string
+    operator: FilterOperator
+    value: string
+}
+
 export type QueryRowsFunctionDataJson = {
-    jwt: string,
-    userid: string,
-    appid: string,
-    column: string,
-    operator: FilterOperator,
-    value: string,
+    jwt: string
+    userid: string
+    appid: string
+    filters: QueryFilter[]
 }
 
 export type QueryRowsFunctionSingleResult = {
