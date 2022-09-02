@@ -56,6 +56,7 @@ export type CreateRowFunctionDataJson = {
     data: object
 }
 
+
 export type QueryFilter = {
     column: string
     operator: FilterOperator
@@ -67,6 +68,14 @@ export type QueryRowsFunctionDataJson = {
     userid: string
     appid: string
     filters: QueryFilter[]
+}
+
+export type UpdateRowFunctionDataJson = {
+    jwt: string,
+    userid: string,
+    appid: string,
+    filters: QueryFilter[]
+    newData: object
 }
 
 export type QueryRowsFunctionSingleResult = {
