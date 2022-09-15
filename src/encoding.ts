@@ -18,3 +18,7 @@ export function b64decode(input: string): Uint8Array {
     }
     return bufView
 }
+
+export function b64length(input: string): number {
+    return input.replace(/=+$/, '').length * 3 / 4
+}

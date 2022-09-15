@@ -1,6 +1,7 @@
 import { Env, RetrieveFileJsonData, UploadFileJsonData } from './types'
 import { verifyJwt, extractUserId } from './auth'
-import { b64decode } from './encoding'
+import { b64decode, b64length } from './encoding'
+import { createClient } from '@supabase/supabase-js'
 
 export async function uploadFile(
     uploadFileData: UploadFileJsonData,
@@ -29,12 +30,39 @@ export async function uploadFile(
             {status: 400}
         )
     }
+    try {
+        await recordFileUpload(uploadFileData, env)
+    } catch (e) {
+        console.log(`Failed to record file upload: ${JSON.stringify(e)}`)
+        return new Response(
+            JSON.stringify({error: "Could record file upload"}),
+            {status: 500}
+        )
+    }
     console.log("Uploading file")
     await env.KESTREL_BUCKET.put(uploadFileData.path, filebytes)
     return new Response(
         JSON.stringify({message: "File uploaded"}),
         {status: 200}
     )
+}
+
+async function recordFileUpload(
+    uploadFileData: UploadFileJsonData,
+    env: Env
+): Promise<void> {
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
+    const {error} = await supabase
+        .from("files")
+        .insert({
+            userid: uploadFileData.userid,
+            path: uploadFileData.path,
+            appid: uploadFileData.appid,
+            filesize: b64length(uploadFileData.filedata_b64),
+        })
+    if (error) {
+        throw error
+    }
 }
 
 export async function retrieveFile(
