@@ -36,8 +36,8 @@ To support this vision, Kestrel provides a few basic functionalities:
    Developer A was a two-person effort, each might receive 50% of those
    proceeds.
 
-Note that the mechanism(s) for defining compensation shares have not yet been
-defined.
+Note that the mechanism(s) for defining margins and compensation shares have 
+not yet been defined.
 
 ## Implementation Notes
 
