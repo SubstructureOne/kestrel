@@ -31,7 +31,8 @@ To support this vision, Kestrel provides a few basic functionalities:
    useful, a reasonable compensation share for Developer A based on AppB's usage
    might be 95%, since their AppA provided the vast majority of the value of
    AppB. Therefore, if AppB was receiving $.009/Gb/mo for user storage, only 
-   $.00045/Gb/mo (5%) might actually go to Developer B while $.00855 (95%) would
+   $.00045/Gb/mo (5%) might actually go to Developer B while 
+   $.00855 (95%) would
    go to Developer A. From there, compensation shares would cascade - if
    Developer A was a two-person effort, each might receive 50% of those
    proceeds.
