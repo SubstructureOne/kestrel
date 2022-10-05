@@ -63,10 +63,13 @@ export async function updateUserDataRow(
     const supabase_service = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY)
     let promise = supabase_service
         .from('userdata')
-        .update({
-            data: updateRowData.newData,
-            count: "exact",
-        }).match({userid: updateRowData.userid, appid: updateRowData.appid})
+        .update(
+            {
+                data: updateRowData.newData,
+                count: "exact",
+            },
+            {count: "exact"},
+        ).match({userid: updateRowData.userid, appid: updateRowData.appid})
     for (let filter of updateRowData.filters) {
         promise = promise.filter(filter.column, filter.operator, filter.value)
     }
@@ -77,6 +80,14 @@ export async function updateUserDataRow(
             {status: 500}
         )
     }
+    // FIXME: record difference in stored size
+    const newdatasize = (count ?? 0) * JSON.stringify(updateRowData.newData).length
+    await addAppDbData(
+        updateRowData.userid,
+        updateRowData.appid,
+        newdatasize,
+        env
+    )
     return new Response(
         JSON.stringify({message: `${count} rows updated`})
     )

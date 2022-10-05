@@ -73,7 +73,7 @@ export type QueryRowsFunctionDataJson = {
 export type UpdateRowFunctionDataJson = {
     jwt: string,
     userid: string,
-    appid: string,
+    appid: number,
     filters: QueryFilter[]
     newData: object
 }
