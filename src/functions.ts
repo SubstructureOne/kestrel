@@ -6,6 +6,7 @@ import {
     UpdateRowFunctionDataJson
 } from './types'
 import { createClient } from '@supabase/supabase-js'
+import { addAppDbData } from './apps'
 
 export async function createUserDataRow(
     createRowData: CreateRowFunctionDataJson,
@@ -34,6 +35,13 @@ export async function createUserDataRow(
             {status: 500}
         )
     }
+    await addAppDbData(
+        createRowData.userid,
+        createRowData.appid,
+        // FIXME: use storage size in PostgreSQL JSONB
+        JSON.stringify(createRowData.data).length,
+        env
+    )
     return new Response(
         JSON.stringify({message: `Row inserted for user ID ${createRowData.userid}, app ID: ${createRowData.appid}`}),
         {status: 200}

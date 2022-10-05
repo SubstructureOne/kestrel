@@ -52,7 +52,7 @@ export type CreateTransactionJson = {
 export type CreateRowFunctionDataJson = {
     jwt: string,
     userid: string,
-    appid: string,
+    appid: number,
     data: object
 }
 
